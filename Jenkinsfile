@@ -14,9 +14,10 @@ pipeline {
     }
 
     environment {
-        IMAGE = "${params.DOCKERHUB_USERNAME}/${params.IMAGE_NAME}:${params.IMAGE_TAG}"
-        CONTAINER_NAME = "spring_project_container"
-    }
+    IMAGE = "${params.DOCKERHUB_USERNAME}/${params.IMAGE_NAME}:${params.IMAGE_TAG}"
+    CONTAINER_NAME = "springboot_app"
+}
+
 
     stages {
 
@@ -89,18 +90,18 @@ pipeline {
             }
         }
 
-        stage('Remove') {
-            when {
-                expression { params.ACTION == 'remove' }
-            }
-            steps {
-                echo "Removing container and image"
-                sh '''
-                docker rm -f spring_project_container || true
-                docker rmi -f $IMAGE || true
-                '''
-            }
-        }
+     stage('Remove') {
+    when {
+        expression { params.ACTION == 'remove' }
+    }
+    steps {
+        echo "Removing container and image"
+        sh '''
+        docker rm -f $CONTAINER_NAME || true
+        docker rmi -f $IMAGE || true
+        '''
+    }
+}
     }
 
     post {
