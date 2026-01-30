@@ -1,37 +1,69 @@
 pipeline {
     agent any
-    tools {
-        maven 'maven'
-    }
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                sh '''
-                    echo "Stopping existing Spring Boot application if running..."
-                    if pgrep -f spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null; then
-                        sudo pkill -f spring_app_sak-0.0.1-SNAPSHOT.jar
-                        echo "Application stopped."
-                    else
-                        echo "No existing application running."
-                    fi
 
-                    echo "Starting the Spring Boot application..."
-                    sudo java -jar target/spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
-                '''
+    parameters {
+        string(name: 'IMAGE_NAME', defaultValue: 'spring_project2003', description: 'Docker image name')
+        string(name: 'IMAGE_TAG', defaultValue: 'v1', description: 'Docker image tag')
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: 'nisarga2907')
+
+    }
+
+    environment {
+        IMAGE = "${params.DOCKERHUB_USERNAME}/${params.IMAGE_NAME}:${params.IMAGE_TAG}"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/nisarga2907/spring_project2003.git'
             }
         }
-    }
-    post {
-        success {
-            echo "Deployed successfully"
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t ${IMAGE} .
+                """
+            }
         }
-        failure {
-            echo "Failed to Deploy"
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                    """
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh """
+                docker push ${IMAGE}
+                """
+            }
+        }
+
+        stage('Delete Local Image') {
+            steps {
+                sh """
+                docker rmi ${IMAGE} || true
+                """
+            }
+        }
+
+        stage('Docker Logout') {
+            steps {
+                sh """
+                docker logout
+                """
+            }
         }
     }
 }
