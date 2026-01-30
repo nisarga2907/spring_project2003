@@ -4,7 +4,6 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: springboot_db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: springdb
@@ -20,9 +19,7 @@ services:
     restart: always
 
   app:
-    build: .
     image: nisarga2907/spring_project2003:v1
-    container_name: springboot_app
     ports:
       - "8085:8080"
     depends_on:
@@ -39,4 +36,3 @@ services:
       retries: 3
       start_period: 40s
     restart: always
-
