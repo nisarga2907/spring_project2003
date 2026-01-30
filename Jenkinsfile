@@ -5,7 +5,7 @@ pipeline {
     parameters {
         string(name: 'DOCKER_REPO', defaultValue: 'nisargasj2907/spring_project2003', description: 'Docker repository name')
         string(name: 'IMAGE_TAG', defaultValue: 'v1', description: 'Tag for Docker image')
-        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Git branch to build')
+        string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Git branch to build')
     }
 
     environment {
