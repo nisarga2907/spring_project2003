@@ -15,7 +15,7 @@ pipeline {
 
     environment {
         IMAGE = "${params.DOCKERHUB_USERNAME}/${params.IMAGE_NAME}:${params.IMAGE_TAG}"
-        CONTAINER_NAME = "spring_project_container"
+        CONTAINER_NAME = "springboot_app"
     }
 
     stages {
